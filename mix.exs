@@ -32,7 +32,9 @@ defmodule Bored.MixProject do
       {:floki, "~> 0.32.0"},
       {:httpoison, "~> 1.8"},
       {:plug_cowboy, "~> 2.0"},
-      {:ex_doc, "~> 0.24", only: :dev, runtime: false}
+      {:ex_doc, "~> 0.24", only: :dev, runtime: false},
+      {:redix, "~> 1.1"},
+      {:castore, ">= 0.0.0"}
     ]
   end
 end
