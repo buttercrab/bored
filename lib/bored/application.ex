@@ -3,6 +3,6 @@ defmodule Bored.Application do
 
   @impl true
   def start(_type, _args) do
-#    Bored.Application.Supervisor.start_link()
+    #    Bored.Application.Supervisor.start_link()
   end
 end

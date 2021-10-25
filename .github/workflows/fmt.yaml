@@ -1,0 +1,20 @@
+name: fmt
+
+on: push
+
+jobs:
+  fmt:
+    runs-on: ubuntu-latest
+    name: fmt
+    strategy:
+      matrix:
+        otp: ['24']
+        elixir: ['1.12']
+    steps:
+      - uses: actions/checkout@v2
+      - uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{matrix.otp}}
+          elixir-version: ${{matrix.elixir}}
+      - run: mix deps.get
+      - run: mix format --check-formatted
