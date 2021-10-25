@@ -1,9 +1,11 @@
+name: fmt
+
 on: push
 
 jobs:
   fmt:
     runs-on: ubuntu-latest
-    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    name: fmt
     strategy:
       matrix:
         otp: ['24']

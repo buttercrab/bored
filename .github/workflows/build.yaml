@@ -1,9 +1,11 @@
+name: build
+
 on: push
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    name: OTP ${{matrix.otp}} / Elixir ${{matrix.elixir}}
+    name: build
     strategy:
       matrix:
         otp: ['24']
