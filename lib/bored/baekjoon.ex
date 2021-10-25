@@ -8,6 +8,8 @@ defmodule Bored.Baekjoon do
   def check_404(doc) do
     if doc
        |> Floki.find(".error-v1-title")
-       |> Enum.empty?(), do: :ok, else: :error
+       |> Enum.empty?(),
+       do: :ok,
+       else: :error
   end
 end

@@ -8,6 +8,8 @@ defmodule Bored.SolvedAc do
   def check_404(doc) do
     if doc
        |> Floki.find("h1")
-       |> Floki.text() == "404", do: :error, else: :ok
+       |> Floki.text() == "404",
+       do: :error,
+       else: :ok
   end
 end
