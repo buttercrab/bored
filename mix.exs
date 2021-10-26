@@ -22,7 +22,8 @@ defmodule Bored.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger],
+      mod: {Bored.Application, []}
     ]
   end
 
@@ -33,8 +34,7 @@ defmodule Bored.MixProject do
       {:httpoison, "~> 1.8"},
       {:plug_cowboy, "~> 2.0"},
       {:ex_doc, "~> 0.24", only: :dev, runtime: false},
-      {:redix, "~> 1.1"},
-      {:castore, ">= 0.0.0"}
+      {:redix, "~> 1.1"}
     ]
   end
 end

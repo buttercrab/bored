@@ -1,6 +1,6 @@
-defmodule Bored.SolvedAc do
+defmodule Bored.Scrap.Baekjoon do
   @moduledoc """
-  `https://solved.ac` HTTPoison base module.
+  `https://www.acmicpc.net` HTTPoison base module.
   """
   @moduledoc since: "0.1.0"
 
@@ -11,12 +11,12 @@ defmodule Bored.SolvedAc do
 
   ## Examples
 
-      iex> Bored.SolvedAc.process_request_url("/hello")
-      "https://solved.ac/hello"
+      iex> Bored.Baekjoon.process_request_url("/hello")
+      "https://www.acmicpc.net/hello"
   """
   @doc since: "0.1.0"
   @spec process_request_url(String.t()) :: String.t()
-  def process_request_url(url), do: "https://solved.ac" <> url
+  def process_request_url(url), do: "https://www.acmicpc.net" <> url
 
   @doc """
   Checks if the html tree is 404 page of the domain.
@@ -25,9 +25,9 @@ defmodule Bored.SolvedAc do
   @spec check_404(Floki.html_tree()) :: :ok | :error
   def check_404(doc) do
     if doc
-       |> Floki.find("h1")
-       |> Floki.text() == "404",
-       do: :error,
-       else: :ok
+       |> Floki.find(".error-v1-title")
+       |> Enum.empty?(),
+       do: :ok,
+       else: :error
   end
 end
