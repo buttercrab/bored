@@ -19,9 +19,9 @@ defmodule Bored.Scrap do
           | {:error, HTTPoison.Error.t() | String.t()}
           | :error
   def prob_info(prob_id) do
-    with {:ok, html} <- Bored.Baekjoon.get("/problem/#{prob_id}"),
+    with {:ok, html} <- Bored.Scrap.Baekjoon.get("/problem/#{prob_id}"),
          {:ok, doc} <- Floki.parse_document(html.body),
-         :ok <- Bored.Baekjoon.check_404(doc),
+         :ok <- Bored.Scrap.Baekjoon.check_404(doc),
          title <-
            doc
            |> Floki.find("#problem_title")
@@ -35,9 +35,9 @@ defmodule Bored.Scrap do
            desc
            |> Enum.reduce(0, fn x, acc -> if x =~ ~r/[a-zA-Z]/, do: acc + 1, else: acc end)
            |> (&(&1 * 2 > length(desc))).(),
-         {:ok, html} <- Bored.SolvedAc.get("/search?query=id%3A#{prob_id}"),
+         {:ok, html} <- Bored.Scrap.SolvedAc.get("/search?query=id%3A#{prob_id}"),
          {:ok, doc} <- Floki.parse_document(html.body),
-         :ok <- Bored.SolvedAc.check_404(doc),
+         :ok <- Bored.Scrap.SolvedAc.check_404(doc),
          tier <-
            doc
            |> Floki.find("img")
@@ -57,18 +57,18 @@ defmodule Bored.Scrap do
           | {:error, HTTPoison.Error.t() | String.t()}
           | :error
   def user_info(user_id) do
-    with {:ok, html} <- Bored.Baekjoon.get("/user/#{user_id}"),
+    with {:ok, html} <- Bored.Scrap.Baekjoon.get("/user/#{user_id}"),
          {:ok, doc} <- Floki.parse_document(html.body),
-         :ok <- Bored.Baekjoon.check_404(doc),
+         :ok <- Bored.Scrap.Baekjoon.check_404(doc),
          solved <-
            doc
            |> Floki.find(".panel-body")
            |> List.first()
            |> Floki.children()
            |> Enum.map(&Floki.text(&1)),
-         {:ok, html} <- Bored.SolvedAc.get("/profile/#{user_id}"),
+         {:ok, html} <- Bored.Scrap.SolvedAc.get("/profile/#{user_id}"),
          {:ok, doc} <- Floki.parse_document(html.body),
-         :ok <- Bored.SolvedAc.check_404(doc),
+         :ok <- Bored.Scrap.SolvedAc.check_404(doc),
          tier <-
            doc
            |> Floki.find("#__next > div:nth-child(4) > div > div:nth-child(1) > div:nth-child(2)")
@@ -109,9 +109,9 @@ defmodule Bored.Scrap do
   def rand_prob(tier) do
     with {lo, hi} <- tier,
          {lo, hi} <- {tier_shortname(lo), tier_shortname(hi)},
-         {:ok, html} <- Bored.SolvedAc.get("/search?query=tier%3A#{lo}..#{hi}&sort=random"),
+         {:ok, html} <- Bored.Scrap.SolvedAc.get("/search?query=tier%3A#{lo}..#{hi}&sort=random"),
          {:ok, doc} <- Floki.parse_document(html.body),
-         :ok <- Bored.SolvedAc.check_404(doc) do
+         :ok <- Bored.Scrap.SolvedAc.check_404(doc) do
       {
         :ok,
         doc

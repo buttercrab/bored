@@ -12,11 +12,11 @@ defmodule Bored.Redix do
 
   @pool_size 10
 
-  def child_spec(_args) do
+  def child_spec(uri) do
     # Specs for the Redix connections.
     children =
       for index <- 0..(@pool_size - 1) do
-        Supervisor.child_spec({Redix, name: :"redix_#{index}"}, id: {Redix, index})
+        Supervisor.child_spec({Redix, {uri, [name: :"redix_#{index}"]}}, id: {Redix, index})
       end
 
     # Spec for the supervisor that will supervise the Redix connections.
