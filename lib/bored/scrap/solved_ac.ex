@@ -15,14 +15,14 @@ defmodule Bored.Scrap.SolvedAc do
       "https://solved.ac/hello"
   """
   @doc since: "0.1.0"
-  @spec process_request_url(String.t()) :: String.t()
+  @spec process_request_url(url :: String.t()) :: String.t()
   def process_request_url(url), do: "https://solved.ac" <> url
 
   @doc """
   Checks if the html tree is 404 page of the domain.
   """
   @doc since: "0.1.0"
-  @spec check_404(Floki.html_tree()) :: :ok | :error
+  @spec check_404(doc :: Floki.html_tree()) :: :ok | :error
   def check_404(doc) do
     if doc
        |> Floki.find("h1")

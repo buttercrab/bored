@@ -4,6 +4,8 @@ defmodule Bored.Api do
   """
   @moduledoc since: "0.1.0"
 
+  @type error() :: Bored.Redix.error() | Bored.Scrap.error()
+
   @prob_info_timeout 60 * 60 * 24
 
   defp get_prob_info(prob_id) do
@@ -39,14 +41,8 @@ defmodule Bored.Api do
   Gets problem information from Baekjoon & SolvedAc.
   """
   @doc since: "0.1.0"
-  @spec prob_info(prob_id :: integer()) ::
-          {:ok, %{id: integer(), title: String.t(), is_eng: true | false, tier: String.t()}}
-          | {:error,
-             Redix.Error.t()
-             | Redix.ConnectionError.t()
-             | HTTPoison.Error.t()
-             | String.t()}
-          | :error
+  @spec prob_info(prob_id :: Bored.prob_id()) ::
+          {:ok, Bored.prob_info()} | {:error, error()} | :error
   def prob_info(prob_id) do
     with {:ok, exists} <- Bored.Redix.command(["EXISTS", "problem.#{prob_id}.title"]) do
       if exists == 1,
@@ -73,14 +69,8 @@ defmodule Bored.Api do
   Gets user tier from Baekjoon & SolvedAc.
   """
   @doc since: "0.1.0"
-  @spec user_tier(user_id :: String.t()) ::
-          {:ok, String.t()}
-          | {:error,
-             Redix.Error.t()
-             | Redix.ConnectionError.t()
-             | HTTPoison.Error.t()
-             | String.t()}
-          | :error
+  @spec user_tier(user_id :: Bored.user_id()) ::
+          {:ok, Bored.user_tier()} | {:error, error()} | :error
   def user_tier(user_id) do
     with {:ok, exists} <- Bored.Redix.command(["EXISTS", "user.#{user_id}.tier"]) do
       if exists == 1,
@@ -100,14 +90,8 @@ defmodule Bored.Api do
   Checks if user solved the problem from Baekjoon & SolvedAc.
   """
   @doc since: "0.1.0"
-  @spec user_solved(user_id :: String.t(), prob_id :: integer()) ::
-          {:ok, boolean()}
-          | {:error,
-             Redix.Error.t()
-             | Redix.ConnectionError.t()
-             | HTTPoison.Error.t()
-             | String.t()}
-          | :error
+  @spec user_solved(user_id :: Bored.user_id(), prob_id :: Bored.prob_id()) ::
+          {:ok, boolean()} | {:error, error()} | :error
   def user_solved(user_id, prob_id) do
     with {:ok, exists} <- Bored.Redix.command(["EXISTS", "user.#{user_id}.tier"]) do
       if exists == 1 do
@@ -124,10 +108,8 @@ defmodule Bored.Api do
   Generates random problem in given tier range from SolvedAc.
   """
   @doc since: "0.1.0"
-  @spec rand_prob(tier :: {String.t(), String.t()}) ::
-          {:ok, [integer()]}
-          | {:error, HTTPoison.Error.t() | String.t()}
-          | :error
+  @spec rand_prob(tier :: Bored.tier_range()) ::
+          {:ok, Bored.problems()} | {:error, Bored.Scrap.error()} | :error
   def rand_prob(tier) do
     Bored.Scrap.rand_prob(tier)
   end
