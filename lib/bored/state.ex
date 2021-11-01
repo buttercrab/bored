@@ -4,6 +4,8 @@ defmodule Bored.State do
   """
   @moduledoc since: "0.1.0"
 
+  use GenServer
+
   @type users() :: %{String.t() => boolean()}
   @type state() :: %{
           prob_id: Bored.prob_id(),
@@ -15,7 +17,7 @@ defmodule Bored.State do
   `start_link` function of `Bored.State`
   """
   @doc since: "0.1.0"
-  def start_link() do
+  def start_link(_args) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 

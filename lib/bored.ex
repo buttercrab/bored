@@ -2,7 +2,7 @@ defmodule Bored do
   @type prob_id() :: integer()
   @type prob_tier() :: String.t()
   @type prob_title() :: String.t()
-  @type prob_info() :: %{id: prob_id(), title: prob_title(), is_eng: boolean(), tier: tier()}
+  @type prob_info() :: %{id: prob_id(), title: prob_title(), is_eng: boolean(), tier: prob_tier()}
 
   @type user_id() :: String.t()
   @type user_tier() :: String.t()
