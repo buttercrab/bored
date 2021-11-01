@@ -4,6 +4,8 @@ defmodule Bored.Scrap do
   """
   @moduledoc since: "0.1.0"
 
+  @type error() :: HTTPoison.Error.t() | String.t()
+
   @doc """
   Gets problem information from Baekjoon & SolvedAc.
 
@@ -14,10 +16,8 @@ defmodule Bored.Scrap do
 
   """
   @doc since: "0.1.0"
-  @spec prob_info(prob_id :: integer()) ::
-          {:ok, %{id: integer(), title: String.t(), is_eng: true | false, tier: String.t()}}
-          | {:error, HTTPoison.Error.t() | String.t()}
-          | :error
+  @spec prob_info(prob_id :: Bored.prob_id()) ::
+          {:ok, Bored.prob_info()} | {:error, error()} | :error
   def prob_info(prob_id) do
     with {:ok, html} <- Bored.Scrap.Baekjoon.get("/problem/#{prob_id}"),
          {:ok, doc} <- Floki.parse_document(html.body),
@@ -52,10 +52,8 @@ defmodule Bored.Scrap do
   Gets user information from Baekjoon & SolvedAc.
   """
   @doc since: "0.1.0"
-  @spec user_info(user_id :: String.t()) ::
-          {:ok, %{id: String.t(), solved: [integer()], tier: String.t()}}
-          | {:error, HTTPoison.Error.t() | String.t()}
-          | :error
+  @spec user_info(user_id :: Bored.user_id()) ::
+          {:ok, Bored.user_info()} | {:error, error()} | :error
   def user_info(user_id) do
     with {:ok, html} <- Bored.Scrap.Baekjoon.get("/user/#{user_id}"),
          {:ok, doc} <- Floki.parse_document(html.body),
@@ -102,10 +100,8 @@ defmodule Bored.Scrap do
   Generates random problem in given tier range from SolvedAc.
   """
   @doc since: "0.1.0"
-  @spec rand_prob(tier :: {String.t(), String.t()}) ::
-          {:ok, [integer()]}
-          | {:error, HTTPoison.Error.t() | String.t()}
-          | :error
+  @spec rand_prob(tier :: Bored.tier_range()) ::
+          {:ok, Bored.problems()} | {:error, error()} | :error
   def rand_prob(tier) do
     with {lo, hi} <- tier,
          {lo, hi} <- {tier_shortname(lo), tier_shortname(hi)},

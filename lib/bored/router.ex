@@ -1,4 +1,9 @@
 defmodule Bored.Router do
+  @moduledoc """
+  Main router of server
+  """
+  @moduledoc since: "0.1.0"
+
   use Plug.Router
 
   plug(:match)

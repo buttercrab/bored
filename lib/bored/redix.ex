@@ -10,8 +10,19 @@ defmodule Bored.Redix do
   """
   @moduledoc since: "0.1.0"
 
+  @type error() :: atom() | Redix.Error.t() | Redix.ConnectionError.t()
+
   @pool_size 10
 
+  @doc """
+  Children specification of `Bored.redix`
+  """
+  @doc since: "0.1.0"
+  @spec child_spec(uri :: String.t()) :: %{
+          id: RedixSupervisor,
+          type: :supervisor,
+          start: {Supervisor, :start_link, {Supervisor.child_spec(), [strategy: :one_for_one]}}
+        }
   def child_spec(uri) do
     # Specs for the Redix connections.
     children =
@@ -27,10 +38,22 @@ defmodule Bored.Redix do
     }
   end
 
+  @doc """
+  Wraps `Redix.command` function
+  """
+  @doc since: "0.1.0"
+  @spec command(command :: Redix.command()) ::
+          {:ok, Redix.Protocol.redis_value()} | {:error, error()}
   def command(command) do
     Redix.command(:"redix_#{random_index()}", command)
   end
 
+  @doc """
+  Wraps `Redix.pipeline` function
+  """
+  @doc since: "0.1.0"
+  @spec pipeline(commands :: [Redix.command()]) ::
+          {:ok, [Redix.Protocol.redis_value()]} | {:error, error()}
   def pipeline(commands) do
     Redix.pipeline(:"redix_#{random_index()}", commands)
   end
