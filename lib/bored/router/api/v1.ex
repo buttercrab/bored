@@ -10,15 +10,16 @@ defmodule Bored.Router.Api.V1 do
   plug(:dispatch)
 
   get "/problem" do
-    send_resp(conn, 200, "{id: #{}}")
+    send_resp(conn, 200, Poison.encode!(%{prob_id: Bored.State.curr_prob()}))
   end
 
   get "/users" do
-    send_resp(conn, 200, "")
+    send_resp(conn, 200, Poison.encode!(Bored.State.user_list()))
   end
 
-  get "/user/:user_id" do
-    send_resp(conn, 200, "")
+  get "/tier" do
+    {low, high} = Bored.State.get_tier()
+    send_resp(conn, 200, Poison.encode!(%{low: low, high: high}))
   end
 
   match _ do

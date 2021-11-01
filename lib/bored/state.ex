@@ -4,7 +4,7 @@ defmodule Bored.State do
   """
   @moduledoc since: "0.1.0"
 
-  @type users() :: [{String.t(), boolean()}]
+  @type users() :: %{String.t() => boolean()}
   @type state() :: %{
           prob_id: Bored.prob_id(),
           users: users(),
@@ -58,10 +58,47 @@ defmodule Bored.State do
   end
 
   @doc """
+  Add an user
+  """
+  @doc since: "0.1.0"
+  @spec add_user(user_id :: Bored.user_id()) :: :ok
+  def add_user(user_id) do
+    GenServer.cast(__MODULE__, {:add_user, user_id})
+  end
+
+  @doc """
+  Delete an user
+  """
+  @doc since: "0.1.0"
+  @spec del_user(user_id :: Bored.user_id()) :: :ok
+  def del_user(user_id) do
+    GenServer.cast(__MODULE__, {:del_user, user_id})
+  end
+
+  @doc """
+  Get tier
+  """
+  @doc since: "0.1.0"
+  @spec get_tier() :: Bored.tier_range()
+  def get_tier() do
+    GenServer.call(__MODULE__, :tier)
+  end
+
+  @doc """
+  Set tier range of random problem
+  """
+  @doc since: "0.1.0"
+  @spec set_tier(tier :: Bored.tier_range()) :: :ok
+  def set_tier(tier) do
+    GenServer.cast(__MODULE__, {:set_tier, tier})
+  end
+
+  @doc """
   Handles the calls
 
   - `:curr_prob`: gets current problem id
   - `:user_list`: gets current state of users
+  - `:tier`: gets current tier range
   """
   @doc since: "0.1.0"
   @spec handle_call(:curr_prob, state :: state()) :: {:reply, Bored.prob_id()}
@@ -77,10 +114,53 @@ defmodule Bored.State do
     {:reply, state.users, state}
   end
 
+  @doc since: "0.1.0"
+  @spec handle_call(:tier, state :: state()) :: {:reply, Bored.tier_range()}
+  @impl true
+  def handle_call(:tier, state) do
+    {:reply, state.tier, state}
+  end
+
+  defp any_user_solved(state, prob_id) do
+    state.users
+    |> Enum.map(fn {user_id, _} -> Bored.Api.user_solved(user_id, prob_id) end)
+    |> Enum.reduce(fn x, acc -> x or acc end)
+  end
+
+  defp new_rand_prob_impl(state) do
+    Bored.Api.rand_prob(state.tier)
+    |> Enum.reduce(0, fn x, acc ->
+      if acc == 0 and !any_user_solved(state, x), do: x, else: acc
+    end)
+  end
+
+  defp new_rand_prob(state) do
+    prob_id = new_rand_prob_impl(state)
+
+    unless prob_id == 0 do
+      prob_id
+    else
+      new_rand_prob(state, 1)
+    end
+  end
+
+  defp new_rand_prob(state, cnt) do
+    if cnt == 20 do
+      0
+    else
+      prob_id = new_rand_prob_impl(state)
+
+      unless prob_id == 0 do
+        prob_id
+      else
+        new_rand_prob(state, cnt + 1)
+      end
+    end
+  end
+
   defp update_user_impl(state) do
     users =
-      state.users
-      |> Enum.map(fn {id, solved} ->
+      for {id, solved} <- state.users, into: %{} do
         unless solved do
           case Bored.Api.user_solved(id, state.prob_id) do
             {:ok, solved} -> {id, solved}
@@ -89,16 +169,17 @@ defmodule Bored.State do
         else
           {id, true}
         end
-      end)
+      end
 
     prob_id =
-      if users |> Enum.reduce(fn x, acc -> x and acc end) do
-        List.first(Bored.Api.rand_prob())
+      if users
+         |> Enum.reduce(fn x, acc -> x and acc end) do
+        new_rand_prob(state)
       else
         state.prob_id
       end
 
-    {:noreply, %{prob_id: prob_id, users: users}}
+    {:noreply, %{state | prob_id: prob_id, users: users}}
   end
 
   @doc """
@@ -109,6 +190,34 @@ defmodule Bored.State do
   @impl true
   def handle_cast(:update_user, state) do
     update_user_impl(state)
+  end
+
+  @doc since: "0.1.0"
+  @spec handle_cast({:set_tier, tier :: Bored.tier_range()}, state :: state()) ::
+          {:noreply, state()}
+  @impl true
+  def handle_cast({:set_tier, tier}, state) do
+    {:noreply, %{state | tier: tier}}
+  end
+
+  @doc since: "0.1.0"
+  @spec handle_cast({:add_user, user_id :: Bored.user_id()}, state :: state()) ::
+          {:noreply, state()}
+  @impl true
+  def handle_cast({:add_user, user_id}, state) do
+    {:noreply,
+     %{
+       state
+       | users: Map.put(state.users, user_id, Bored.Api.user_solved(user_id, state.prob_id))
+     }}
+  end
+
+  @doc since: "0.1.0"
+  @spec handle_cast({:del_user, user_id :: Bored.user_id()}, state :: state()) ::
+          {:noreply, state()}
+  @impl true
+  def handle_cast({:del_user, user_id}, state) do
+    {:noreply, %{state | users: Map.delete(state.users, user_id)}}
   end
 
   @doc """
