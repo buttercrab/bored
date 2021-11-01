@@ -103,23 +103,25 @@ defmodule Bored.State do
   - `:tier`: gets current tier range
   """
   @doc since: "0.1.0"
-  @spec handle_call(:curr_prob, state :: state()) :: {:reply, Bored.prob_id()}
+  @spec handle_call(:curr_prob, _from :: GenServer.from(), state :: state()) ::
+          {:reply, Bored.prob_id()}
   @impl true
-  def handle_call(:curr_prob, state) do
+  def handle_call(:curr_prob, _from, state) do
     {:reply, state.prob_id, state}
   end
 
   @doc since: "0.1.0"
-  @spec handle_call(:user_list, state :: state()) :: {:reply, users()}
+  @spec handle_call(:user_list, _from :: GenServer.from(), state :: state()) :: {:reply, users()}
   @impl true
-  def handle_call(:user_list, state) do
+  def handle_call(:user_list, _from, state) do
     {:reply, state.users, state}
   end
 
   @doc since: "0.1.0"
-  @spec handle_call(:tier, state :: state()) :: {:reply, Bored.tier_range()}
+  @spec handle_call(:tier, _from :: GenServer.from(), state :: state()) ::
+          {:reply, Bored.tier_range()}
   @impl true
-  def handle_call(:tier, state) do
+  def handle_call(:tier, _from, state) do
     {:reply, state.tier, state}
   end
 
